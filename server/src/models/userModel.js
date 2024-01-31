@@ -1,0 +1,54 @@
+const { Schema, model } = require("mongoose");
+const bcrypt = require('bcrypt');
+const { defaultImagePath } = require("../secret");
+
+const userSchema = new Schema({
+  name: {
+    type: String,
+    required: [true, 'User name is missing'],
+    trim: true,
+    minlength: [3, 'User Name can be minimum 3 char'],
+    maxlength: [31, 'User Name can be maximum 31 char']
+  },
+  email: {
+    type: String,
+    required: [true, 'User email is missing'],
+    unique: true,
+    lowercase: true,
+    validate: {
+      validator: function (v) {
+        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+      },
+      message: 'Please enter a valid email'
+    }
+  },
+  password: {
+    type: String,
+    required: [true, 'User password is missing'],
+    minlength: [6, 'User Name can be minimum 6 char'],
+    set:(v)=>bcrypt.hashSync(v,bcrypt.genSaltSync(10))
+  },
+  image: {
+    type: String,
+    default:defaultImagePath,
+  },
+  password: {
+    type: String,
+    required: [true, 'User password is missing'],
+  },
+  phone: {
+    type: String,
+    required: [true, 'User password is missing'],
+  },
+  isAdmin: {
+    type: Boolean,
+    default:false,
+  },
+  isBanned: {
+    type: Boolean,
+    default:false,
+  },
+},{timestamps:true});
+
+module.exports = model('Users', userSchema); 
+// 'User' is the model name, you can change it to your preference

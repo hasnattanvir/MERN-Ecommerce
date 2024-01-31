@@ -16,3 +16,9 @@
 ## Environment variable & .gitignore ->dotenv
 
 ## MVC Architecture ->mongoose
+
+## connect to MongoDB database
+
+## Schema & Model for User
+
+## create seed route for testing

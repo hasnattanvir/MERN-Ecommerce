@@ -24,9 +24,11 @@ app.use(bodyParser.json())
 app.use(express.urlencoded({extended:true}));
 
 //import router
-const userRouter = require('../routers/userRouter');
+const userRouter = require('./routers/userRouter');
+const seedRouter = require('./routers/seedRouter');
 // Router Add
 app.use("/api/users",userRouter);
+app.use("/api/seed",seedRouter);
 
 app.get('/test',rateLimiter,(req,res)=>{
     try{
