@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const { defaultImagePath } = require("../secret");
 
 const userSchema = new Schema({
@@ -32,13 +32,12 @@ const userSchema = new Schema({
     type: String,
     default:defaultImagePath,
   },
-  password: {
-    type: String,
-    required: [true, 'User password is missing'],
-  },
   phone: {
     type: String,
     required: [true, 'User password is missing'],
+  },
+  address: {
+    type: String,
   },
   isAdmin: {
     type: Boolean,
@@ -48,7 +47,11 @@ const userSchema = new Schema({
     type: Boolean,
     default:false,
   },
-},{timestamps:true});
+},
+{timestamps:true}
+);
 
-module.exports = model('Users', userSchema); 
+const User = model('Users', userSchema);
+
+module.exports =  User;
 // 'User' is the model name, you can change it to your preference

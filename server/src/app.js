@@ -26,6 +26,7 @@ app.use(express.urlencoded({extended:true}));
 //import router
 const userRouter = require('./routers/userRouter');
 const seedRouter = require('./routers/seedRouter');
+const { errorResponse } = require("./controllers/responseController");
 // Router Add
 app.use("/api/users",userRouter);
 app.use("/api/seed",seedRouter);
@@ -54,10 +55,14 @@ app.use((req,res,next)=>{
 app.use((err,req,res,next)=>{
     // console.error(err.stack);
     // res.status(404).json({message:'route not found'});
-    return res.status(err.status || 500).json({
-        success:false,
+    // return res.status(err.status || 500).json({
+    //     success:false,
+    //     message:err.message
+    // });
+    return errorResponse(res,{
+        statusCode:err.status,
         message:err.message
-    });
+    })
 });
 
 
