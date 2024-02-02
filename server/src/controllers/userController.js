@@ -160,7 +160,7 @@ const processRegister = async(req,res,next)=>{
         }
 // send email
        try{
-        // await EmailWithNodeMailer(emailData);
+        await EmailWithNodeMailer(emailData);
        }catch(emailError){
         next(createError(500,'Failed to send verification email'));
         return;
