@@ -1,4 +1,5 @@
 const createError = require('http-errors');
+const jwt = require('jsonwebtoken');
 const fs = require('fs').promises;
 const User = require('../models/userModel');
 const { successResponse } = require('./responseController');
@@ -157,9 +158,9 @@ const processRegister = async(req,res,next)=>{
             <p>Please click here to link <a href="${clientURL}/api/users/activate/${token}" target="_blank">activate your account</a></p>
             `
         }
-
+// send email
        try{
-        await EmailWithNodeMailer(emailData);
+        // await EmailWithNodeMailer(emailData);
        }catch(emailError){
         next(createError(500,'Failed to send verification email'));
         return;
@@ -182,4 +183,27 @@ const processRegister = async(req,res,next)=>{
     }
 };
 
-module.exports ={getUsers,getUserById,deleteUserById,processRegister};
+const activateuserAccount = async(req,res,next)=>{
+    try{
+        const token = req.body.token;
+        if(!token) {
+            throw createError(404, 'token not found');
+        }
+        const decoded = jwt.verify(token,jwtactivationKey);
+        // console.log(decoded);
+        if(!decoded) throw createError(401,'user was not able to verified');
+        const userExists = await User.exists({email:decoded.email});
+        if(userExists){
+            throw createError(409,'User already exits. please login');
+        }
+        await User.create(decoded);
+        return successResponse(res,{
+            statusCode:201,
+            message:`user was registered successfully`,
+        })
+    }catch(error){
+        next(error);
+    }
+};
+
+module.exports ={getUsers,getUserById,deleteUserById,processRegister,activateuserAccount};

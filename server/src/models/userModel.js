@@ -51,7 +51,8 @@ const userSchema = new Schema({
 {timestamps:true}
 );
 
-const User = model('Users', userSchema);
 
+
+const User = model('Users', userSchema);
 module.exports =  User;
 // 'User' is the model name, you can change it to your preference
