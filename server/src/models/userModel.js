@@ -30,7 +30,9 @@ const userSchema = new Schema({
   },
   image: {
     type: String,
-    default:defaultImagePath,
+    default:defaultImagePath
+    // contentType:String,
+    // required:[true,"User image is required"],
   },
   phone: {
     type: String,
@@ -38,6 +40,7 @@ const userSchema = new Schema({
   },
   address: {
     type: String,
+    minlength: [3, 'Address can be minimum 3 char'],
   },
   isAdmin: {
     type: Boolean,

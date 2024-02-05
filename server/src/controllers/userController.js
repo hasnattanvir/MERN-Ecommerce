@@ -9,6 +9,7 @@ const { deleteImage } = require('../helper/deleteImage');
 const { jwtactivationKey, clientURL } = require('../secret');
 const { createJSONWebToken } = require('../helper/jsonwebtoken');
 const EmailWithNodeMailer = require('../helper/email');
+const { log } = require('console');
 
 const getUsers = async(req,res,next)=>{
     // console.log("user profile");
@@ -124,6 +125,9 @@ const deleteUserById = async(req,res,next)=>{
     //    })
 
        await User.findByIdAndDelete({_id:id,isAdmin:false})
+       if(user && user.image){
+        await deleteImage(user.image);
+       }
 
         return successResponse(res,{
             statusCode:200,
@@ -139,12 +143,30 @@ const deleteUserById = async(req,res,next)=>{
 const processRegister = async(req,res,next)=>{
     try{
         const {name,email,password,phone,address} = req.body;
+        // added new
+        const image = req.file?.path;
+        if(image && image.size>1024 * 1024 *2){
+            throw createError(400,'File too large.It must be less then 2 MB');
+        } 
+
         const userExists = await User.exists({email:email});
         if(userExists){
             throw createError(409,'User already exits. please login');
         }
+
+        const tokenPayload = {
+            name,
+            email,
+            password,
+            phone,
+            address,
+        }
+        if(image){
+            tokenPayload.image = image
+        }
+
         const token = createJSONWebToken(
-            {name,email,password,phone,address},
+            tokenPayload,
             jwtactivationKey,
             '10m'
             );
@@ -158,30 +180,25 @@ const processRegister = async(req,res,next)=>{
             <p>Please click here to link <a href="${clientURL}/api/users/activate/${token}" target="_blank">activate your account</a></p>
             `
         }
-// send email
+        //send email
        try{
         await EmailWithNodeMailer(emailData);
        }catch(emailError){
         next(createError(500,'Failed to send verification email'));
         return;
        }
-        // const newUser ={
-        //     name,
-        //     email,
-        //     password,
-        //     phone,
-        //     address
-        // }
-        // console.log(token);
+
         return successResponse(res,{
             statusCode:200,
             message:`Please go to your email ${email}  for completing your registerton process`,
-            payload:{token},
+            payload:token,
         })
     }catch(error){
         next(error);
     }
 };
+
+
 
 const activateuserAccount = async(req,res,next)=>{
     try{
@@ -189,21 +206,86 @@ const activateuserAccount = async(req,res,next)=>{
         if(!token) {
             throw createError(404, 'token not found');
         }
-        const decoded = jwt.verify(token,jwtactivationKey);
-        // console.log(decoded);
-        if(!decoded) throw createError(401,'user was not able to verified');
-        const userExists = await User.exists({email:decoded.email});
-        if(userExists){
-            throw createError(409,'User already exits. please login');
+
+        try{
+            const decoded = jwt.verify(token,jwtactivationKey);
+            // console.log(decoded);
+            if(!decoded) throw createError(401,'user was not able to verified');
+            const userExists = await User.exists({email:decoded.email});
+            if(userExists){
+                throw createError(409,'User already exits. please login');
+            }
+            await User.create(decoded);
+            return successResponse(res,{
+                statusCode:201,
+                message:`user was registered successfully`,
+            })
+
+        }catch(error){
+            if(error.name === 'TokenExpiredError'){
+                throw createError(401,'Token has Expired');
+            }else if(error.name==='JsonWebTokenError'){
+                throw createError(401,'Invalid Token');
+            }else{
+                throw error;
+            }
         }
-        await User.create(decoded);
-        return successResponse(res,{
-            statusCode:201,
-            message:`user was registered successfully`,
-        })
     }catch(error){
         next(error);
     }
 };
 
-module.exports ={getUsers,getUserById,deleteUserById,processRegister,activateuserAccount};
+const updateUserById = async(req,res,next)=>{
+    try{
+
+        const userId = req.params.id;
+        const options ={password:0};
+        const user = await findWithID(User,userId,options);
+
+        const updateOptions = {new:true, runvalidators:true, context:'query'}; 
+        let updates = {};
+        const allowedFields = ['name','password','phone','address'];
+        for(let key in req.body){
+            if(allowedFields.includes(key)){
+                updates[key] = req.body[key];
+            }else if(key==='email'){
+                // throw new Error("email can't update");
+                throw createError(400,"email can't update");
+            }
+        } 
+        const image = req.file.path; 
+        if(image){
+            if(image && image.size>1024 * 1024 *2){
+                throw createError(400,'File too large.It must be less then 2 MB');
+            }
+            // updates.image = image.buffer.toString('base64');
+            updates.image = image;
+            user.image !== 'default.png' && deleteImage (user.image);
+        }
+        
+        //object to field exclude
+        // delete updates.email;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            updates,
+            updateOptions
+            ).select("-password");
+        if(!updatedUser){
+            throw createError(404,'File too large.It must be less then 2 MB');
+        }
+
+        return successResponse(res,{
+            statusCode:200,
+            message:'user was update successfully',
+            payload:updatedUser,
+        });
+
+    }catch(error){
+        next(error);
+    }
+};
+
+
+
+module.exports ={getUsers,getUserById,deleteUserById,processRegister,activateuserAccount,updateUserById};

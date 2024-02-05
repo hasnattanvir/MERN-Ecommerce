@@ -26,10 +26,12 @@ app.use(express.urlencoded({extended:true}));
 //import router
 const userRouter = require('./routers/userRouter');
 const seedRouter = require('./routers/seedRouter');
+const authRouter = require("./routers/authRouter");
 const { errorResponse } = require("./controllers/responseController");
 // Router Add
 app.use("/api/users",userRouter);
 app.use("/api/seed",seedRouter);
+app.use("/api/seed",authRouter);
 
 app.get('/test',rateLimiter,(req,res)=>{
     try{

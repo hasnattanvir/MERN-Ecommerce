@@ -1,11 +1,11 @@
 const fs = require('fs').promises;
 
-const deleteImage = async (userImagePath)=>{
+const deleteImage = async (imagePath)=>{
     try{
-        await fs.access(userImagePath);
-        await fs.unlink(userImagePath);
+        await fs.access(imagePath);
+        await fs.unlink(imagePath);
         await console.log("user image was deleted");
-        await fs.unlink(userImagePath);
+        await fs.unlink(imagePath);
     }catch(error){
         console.error('user image does not exist')
     }
