@@ -60,3 +60,7 @@
 ## add multer middleware for file upload
 ## PUT /api/users/:id -> update a single user by id
 
+## post/api/auth/login ->user login
+## post/api/auth/logout ->user logout
+## middlewares -> isLoggedIn,isLoggedOut,isAdmin
+## GET/api/auth/refress -> refresh the token

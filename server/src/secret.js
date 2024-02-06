@@ -6,6 +6,7 @@ const defaultImagePath = process.env.DEFAULT_USER_IMAGE_PATH || 'public/images/u
 // console.log(MongoDBAtlas);
 
 const jwtactivationKey = process.env.JWT_ACTIVATION_KEY || 'slkjfeonvls34(*@#&$';
+const jwtaccessKey = process.env.JWT_ACCESS_KEY || 'SLFKLJK987(*@#&$';
 
 const smtpUsername = process.env.SMTP_USERNAME || '';
 const smtpPassword = process.env.SMTP_PASSWORD || '';
@@ -17,6 +18,7 @@ module.exports ={
     MongoDBAtlas, 
     defaultImagePath, 
     jwtactivationKey,
+    jwtaccessKey,
     smtpUsername,
     smtpPassword,
     clientURL,

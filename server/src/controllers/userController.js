@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs').promises;
 const User = require('../models/userModel');
 const { successResponse } = require('./responseController');
-// const  mongoose  = require('mongoose');
 const {findWithID} = require('../services/findItem');
 const { deleteImage } = require('../helper/deleteImage');
 const { jwtactivationKey, clientURL } = require('../secret');
@@ -68,6 +67,7 @@ const getUsers = async(req,res,next)=>{
 
 const getUserById = async(req,res,next)=>{
     try{
+        // console.log(req.body.userId);
        const id = req.params.id;
        const options ={password:0};
        const user = await findWithID(User,id,options);
