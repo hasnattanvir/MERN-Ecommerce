@@ -27,24 +27,26 @@ const handleLogin = async(req,res,next)=>{
         if(!isPasswordMatch){
             throw createError(401,'Email/password did not match');
         }
+
         //token,cookie
-        
         const accessToken = createJSONWebToken(
-            {_id:user._id},
+            // {_id:user._id},
+            {user},
             jwtaccessKey,
-            '10m'
+            '15m'
             );
             res.cookie('accessToken', accessToken, {
                 maxAge: 15 * 60 * 1000, // 15 minutes
                 httpOnly: true,
                 sameSite: 'none'
             });
+        const userWithoutPassword = await User.findOne({email}).select('-password');
               
         //success response
         return successResponse(res,{
             statusCode:200,
             message:'Users loggedin successfull',
-            payload:{user}
+            payload:{userWithoutPassword}
         })
         
     } catch (error) {

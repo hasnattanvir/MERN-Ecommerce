@@ -63,4 +63,11 @@
 ## post/api/auth/login ->user login
 ## post/api/auth/logout ->user logout
 ## middlewares -> isLoggedIn,isLoggedOut,isAdmin
+## input validation when signed in a refactoring
 ## GET/api/auth/refress -> refresh the token
+
+## PUT /api/users/ban-user ->ban user
+## PUT /api/users/unban-user -> unban user
+## PUT /api/users/update-password ->update the password
+## POST /api/users/forget-password ->forget the password
+## PUT /api/users/reset-password -> reset the password

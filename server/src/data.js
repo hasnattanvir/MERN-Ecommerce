@@ -3,14 +3,14 @@ const data={
         {
             name:'hasnat tanvir',
             email:'hasnat@gmail.com',
-            password:'12345678',
+            password:'Tanvir123@',
             phone:'0162501045',
             address:'sylhet,bangladesh',
         },
         {
             name:'korim',
             email:'korim@gmail.com',
-            password:'87654321',
+            password:'Korim123$',
             phone:'0162501045',
             address:'dhaka,bangladesh',
         },

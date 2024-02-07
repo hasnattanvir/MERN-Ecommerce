@@ -12,6 +12,7 @@ const { log } = require('console');
 
 const getUsers = async(req,res,next)=>{
     // console.log("user profile");
+    // console.log(req.user);
     try{
         const search = req.query.search || "";
         const page = Number(req.query.page) || 1;
@@ -67,7 +68,9 @@ const getUsers = async(req,res,next)=>{
 
 const getUserById = async(req,res,next)=>{
     try{
-        // console.log(req.body.userId);
+    //    console.log(req.body.userId);
+    console.log(req.user);
+
        const id = req.params.id;
        const options ={password:0};
        const user = await findWithID(User,id,options);
@@ -100,8 +103,8 @@ const deleteUserById = async(req,res,next)=>{
        const id = req.params.id;
        const options ={password:0};
        const user = await findWithID(User,id,options);
-       const userImagePath = user.image;
-       deleteImage(userImagePath);
+    //    const userImagePath = user.image;
+    //    deleteImage(userImagePath);
 
     //option 2
     //    fs.access(userImagePath)
@@ -198,8 +201,6 @@ const processRegister = async(req,res,next)=>{
     }
 };
 
-
-
 const activateuserAccount = async(req,res,next)=>{
     try{
         const token = req.body.token;
@@ -287,5 +288,61 @@ const updateUserById = async(req,res,next)=>{
 };
 
 
+const handleBanUserId = async(req,res,next)=>{
+    try{
 
-module.exports ={getUsers,getUserById,deleteUserById,processRegister,activateuserAccount,updateUserById};
+        const userId = req.params.id;
+        await findWithID(User,userId);
+        const updates = {isBanned:true}
+        const updateOptions = {new:true, runvalidators:true, context:'query'}; 
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            updates,
+            updateOptions
+            ).select("-password");
+        if(!updatedUser){
+            throw createError(404,'User was not banned successfull');
+        }
+
+        return successResponse(res,{
+            statusCode:200,
+            message:'user was banned successfully',
+            // payload:updatedUser,
+        });
+
+    }catch(error){
+        next(error);
+    }
+};
+
+const handleUnBanUserId = async(req,res,next)=>{
+    try{
+        const userId = req.params.id;
+        await findWithID(User,userId);
+        const updates = {isBanned:false}
+        const updateOptions = {new:true, runvalidators:true, context:'query'}; 
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            updates,
+            updateOptions
+            ).select("-password");
+        if(!updatedUser){
+            throw createError(404,'User was not Unbanned successfull');
+        }
+
+        return successResponse(res,{
+            statusCode:200,
+            message:'user was banned successfully',
+            // payload:updatedUser,
+        });
+
+    }catch(error){
+        next(error);
+    }
+};
+
+
+
+module.exports ={getUsers,getUserById,deleteUserById,processRegister,activateuserAccount,updateUserById,handleBanUserId,handleUnBanUserId};
