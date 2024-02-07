@@ -2,15 +2,15 @@ const express = require("express");
 const userRouter = express.Router();
 const {isLoggedIn, isLoggedOUt,isAdmin} = require("../middlewares/auth");
 const {
-        getUsers,
-        getUserById,
-        updateUserById,
-        deleteUserById,
+        handlegetUsers,
+        handlegetUserById,
+        handleupdateUserById,
+        handledeleteUserById,
         // handleBanUserId,
         // handleUnBanUserId,
         handleManageUserId,
-        processRegister,
-        activateuserAccount
+        handleprocessRegister,
+        handleactivateuserAccount
 } = require('../controllers/userController');
 
 const upload = require("../middlewares/uploadefile");
@@ -19,17 +19,22 @@ const runValidation = require("../validators");
 
 userRouter.post(
         '/process-register',
-        runValidation,
         isLoggedOUt,
+        runValidation,
         validateUserRegistration,
         upload.single("image"),
-        processRegister
+        handleprocessRegister
         );
-userRouter.post('/activate',isLoggedOUt,activateuserAccount);
-userRouter.get('/',isLoggedIn,isAdmin,getUsers);
-userRouter.get('/:id',isLoggedIn,getUserById);
-userRouter.delete('/:id',isLoggedIn,deleteUserById);
-userRouter.put('/:id',upload.single("image"),isLoggedIn,updateUserById);
+userRouter.post('/activate',isLoggedOUt,handleactivateuserAccount);
+userRouter.get('/',isLoggedIn,isAdmin,handlegetUsers);
+userRouter.get('/:id',isLoggedIn,handlegetUserById);
+userRouter.delete('/:id',isLoggedIn,handledeleteUserById);
+userRouter.put(
+        '/:id',
+        isLoggedIn,
+        upload.single("image"),
+        handleupdateUserById
+        );
 userRouter.put('/manage-user/:id',isLoggedIn,isAdmin,handleManageUserId);
 //safarat ban and unban
 // userRouter.put('/ban-user/:id',isLoggedIn,isAdmin,handleBanUserId);

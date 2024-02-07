@@ -9,9 +9,10 @@ const { jwtactivationKey, clientURL } = require('../secret');
 const { createJSONWebToken } = require('../helper/jsonwebtoken');
 const EmailWithNodeMailer = require('../helper/email');
 const { log } = require('console');
-const {handleUserAction} = require('../services/userService');
-
-const getUsers = async(req,res,next)=>{
+const {handleUserAction, findUsers, findUserById, deleteUserById, updateUserById} = require('../services/userService');
+const { default: mongoose } = require('mongoose');
+// Get All User
+const handlegetUsers = async(req,res,next)=>{
     // console.log("user profile");
     // console.log(req.user);
     try{
@@ -19,45 +20,15 @@ const getUsers = async(req,res,next)=>{
         const page = Number(req.query.page) || 1;
         const limit = Number(req.query.limit) || 5;
 
-        const searchRegExp = new RegExp('.*'+search+".*",'i');
-
-        const filter = {
-            isAdmin:{$ne: true},
-            $or:[
-                {name:{$regex:searchRegExp}},
-                {email:{$regex:searchRegExp}},
-                {phone:{$regex:searchRegExp}}
-            ]
-        };
-        const options = {password:0}
-
-
-        const users = await User.find(filter,options).limit(limit).skip((page-1)*limit);
-        const count = await User.find(filter).countDocuments();
-        if(!users) throw createError(404,"no users found");
-        // res.status(200).send({
-        //     message:"User was Return",
-        //     users,
-        //     pagination:{
-        //         totalPages:Math.ceil(count/limit),
-        //         currentPage:page,
-        //         previousPage:page-1 > 0 ? page-1:null,
-        //         nextPage:page+1 <= Math.ceil(count/limit) ? page+1:null,
-        //     }
-        // });
-
+       const {users,pagination,} = await findUsers(search,limit,page);
         return successResponse(res,{
             statusCode:200,
             message:'Users Were Returned successfully',
             payload:{
                 message:"User was Return",
-                users,
-                pagination:{
-                    totalPages:Math.ceil(count/limit),
-                    currentPage:page,
-                    previousPage:page-1 > 0 ? page-1:null,
-                    nextPage:page+1 <= Math.ceil(count/limit) ? page+1:null,
-                }
+                users:users,
+                pagination:pagination,
+                
             }
         })
     }catch(error){
@@ -65,16 +36,15 @@ const getUsers = async(req,res,next)=>{
         next(error);
     }
 };
-
-
-const getUserById = async(req,res,next)=>{
+// Find User
+const handlegetUserById = async(req,res,next)=>{
     try{
     //    console.log(req.body.userId);
-    console.log(req.user);
+    // console.log(req.user);
 
        const id = req.params.id;
        const options ={password:0};
-       const user = await findWithID(User,id,options);
+       const user = await findUserById(id,options);
     //    const options = {password:0};
     //    //
     //    const user = await User.findById(id,options);
@@ -97,42 +67,12 @@ const getUserById = async(req,res,next)=>{
         next(error);
     }
 };
-
-
-const deleteUserById = async(req,res,next)=>{
+// Delete User
+const handledeleteUserById = async(req,res,next)=>{
     try{
        const id = req.params.id;
        const options ={password:0};
-       const user = await findWithID(User,id,options);
-    //    const userImagePath = user.image;
-    //    deleteImage(userImagePath);
-
-    //option 2
-    //    fs.access(userImagePath)
-    //    .then(()=>fs.unlink(userImagePath))
-    //    .then(()=>console.log("user image was deleted"))
-    //    .catch((err)=>console.error('user image does not exist'));
-
-    //option 1
-    //    fs.access(userImagePath,(err)=>{
-    //        if(err){
-    //         console.error('user image does not exist');
-    //        }else{
-    //         fs.unlink(userImagePath,(err)=>{
-    //             if(err){
-    //                 throw err;
-    //             }else{
-    //                 console.log("user image was deleted");
-    //             }
-    //         })
-    //        }
-    //    })
-
-       await User.findByIdAndDelete({_id:id,isAdmin:false})
-       if(user && user.image){
-        await deleteImage(user.image);
-       }
-
+       await deleteUserById(id,options);
         return successResponse(res,{
             statusCode:200,
             message:'User Wes Delete successfully',
@@ -142,9 +82,8 @@ const deleteUserById = async(req,res,next)=>{
         next(error);
     }
 };
-
-
-const processRegister = async(req,res,next)=>{
+// Register User
+const handleprocessRegister = async(req,res,next)=>{
     try{
         const {name,email,password,phone,address} = req.body;
         // added new
@@ -202,7 +141,7 @@ const processRegister = async(req,res,next)=>{
     }
 };
 
-const activateuserAccount = async(req,res,next)=>{
+const handleactivateuserAccount = async(req,res,next)=>{
     try{
         const token = req.body.token;
         if(!token) {
@@ -236,46 +175,13 @@ const activateuserAccount = async(req,res,next)=>{
         next(error);
     }
 };
-
-const updateUserById = async(req,res,next)=>{
+// Update User 
+const handleupdateUserById = async(req,res,next)=>{
     try{
 
         const userId = req.params.id;
-        const options ={password:0};
-        const user = await findWithID(User,userId,options);
-
-        const updateOptions = {new:true, runvalidators:true, context:'query'}; 
-        let updates = {};
-        const allowedFields = ['name','password','phone','address'];
-        for(let key in req.body){
-            if(allowedFields.includes(key)){
-                updates[key] = req.body[key];
-            }else if(key==='email'){
-                // throw new Error("email can't update");
-                throw createError(400,"email can't update");
-            }
-        } 
-        const image = req.file.path; 
-        if(image){
-            if(image && image.size>1024 * 1024 *2){
-                throw createError(400,'File too large.It must be less then 2 MB');
-            }
-            // updates.image = image.buffer.toString('base64');
-            updates.image = image;
-            user.image !== 'default.png' && deleteImage (user.image);
-        }
         
-        //object to field exclude
-        // delete updates.email;
-
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            updates,
-            updateOptions
-            ).select("-password");
-        if(!updatedUser){
-            throw createError(404,'File too large.It must be less then 2 MB');
-        }
+        const updatedUser = await updateUserById(userId,req);
 
         return successResponse(res,{
             statusCode:200,
@@ -284,6 +190,10 @@ const updateUserById = async(req,res,next)=>{
         });
 
     }catch(error){
+        console.log(error); // Check the error type and properties
+        if (error instanceof mongoose.Error.CastError) {
+            throw createError(400, 'Invalid Id');
+        }
         next(error);
     }
 };
@@ -364,12 +274,12 @@ const handleManageUserId = async(req,res,next)=>{
 
 
 module.exports ={
-    getUsers,
-    getUserById,
-    deleteUserById,
-    processRegister,
-    activateuserAccount,
-    updateUserById,
+    handlegetUsers,
+    handlegetUserById,
+    handledeleteUserById,
+    handleprocessRegister,
+    handleactivateuserAccount,
+    handleupdateUserById,
     handleManageUserId,
     // handleBanUserId,
     // handleUnBanUserId
