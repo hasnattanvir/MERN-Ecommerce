@@ -6,8 +6,9 @@ const {
         getUserById,
         updateUserById,
         deleteUserById,
-        handleBanUserId,
-        handleUnBanUserId,
+        // handleBanUserId,
+        // handleUnBanUserId,
+        handleManageUserId,
         processRegister,
         activateuserAccount
 } = require('../controllers/userController');
@@ -29,7 +30,9 @@ userRouter.get('/',isLoggedIn,isAdmin,getUsers);
 userRouter.get('/:id',isLoggedIn,getUserById);
 userRouter.delete('/:id',isLoggedIn,deleteUserById);
 userRouter.put('/:id',upload.single("image"),isLoggedIn,updateUserById);
-userRouter.put('/ban-user/:id',isLoggedIn,isAdmin,handleBanUserId);
-userRouter.put('/unban-user/:id',isLoggedIn,isAdmin,handleUnBanUserId);
+userRouter.put('/manage-user/:id',isLoggedIn,isAdmin,handleManageUserId);
+//safarat ban and unban
+// userRouter.put('/ban-user/:id',isLoggedIn,isAdmin,handleBanUserId);
+// userRouter.put('/unban-user/:id([0-9a-fA-F]{24})',isLoggedIn,isAdmin,handleUnBanUserId);
 
 module.exports = userRouter;

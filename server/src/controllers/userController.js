@@ -9,6 +9,7 @@ const { jwtactivationKey, clientURL } = require('../secret');
 const { createJSONWebToken } = require('../helper/jsonwebtoken');
 const EmailWithNodeMailer = require('../helper/email');
 const { log } = require('console');
+const {handleUserAction} = require('../services/userService');
 
 const getUsers = async(req,res,next)=>{
     // console.log("user profile");
@@ -287,7 +288,7 @@ const updateUserById = async(req,res,next)=>{
     }
 };
 
-
+// we safarate ban and unban handler but nex we use its one controler it just not remove
 const handleBanUserId = async(req,res,next)=>{
     try{
 
@@ -343,6 +344,33 @@ const handleUnBanUserId = async(req,res,next)=>{
     }
 };
 
+const handleManageUserId = async(req,res,next)=>{
+    try{
+        let userId = req.params.id;
+        let action = req.body.action;
+        let successMessage = await handleUserAction(action,userId);
+
+        return successResponse(res,{
+            statusCode:200,
+            message:successMessage
+            // payload:updatedUser,
+        });
+
+    }catch(error){
+        next(error);
+    }
+};
 
 
-module.exports ={getUsers,getUserById,deleteUserById,processRegister,activateuserAccount,updateUserById,handleBanUserId,handleUnBanUserId};
+
+module.exports ={
+    getUsers,
+    getUserById,
+    deleteUserById,
+    processRegister,
+    activateuserAccount,
+    updateUserById,
+    handleManageUserId,
+    // handleBanUserId,
+    // handleUnBanUserId
+};
