@@ -1,6 +1,9 @@
 const express = require("express");
 const userRouter = express.Router();
 const {isLoggedIn, isLoggedOUt,isAdmin} = require("../middlewares/auth");
+const upload = require("../middlewares/uploadefile");
+const {validateUserRegistration, validateUserPasswordUpdate} = require("../validators/auth");
+const runValidation = require("../validators");
 const {
         handlegetUsers,
         handlegetUserById,
@@ -10,12 +13,11 @@ const {
         // handleUnBanUserId,
         handleManageUserId,
         handleprocessRegister,
-        handleactivateuserAccount
+        handleactivateuserAccount,
+        handleUpdatePassword
 } = require('../controllers/userController');
 
-const upload = require("../middlewares/uploadefile");
-const {validateUserRegistration} = require("../validators/auth");
-const runValidation = require("../validators");
+
 
 userRouter.post(
         '/process-register',
@@ -36,8 +38,15 @@ userRouter.put(
         handleupdateUserById
         );
 userRouter.put('/manage-user/:id',isLoggedIn,isAdmin,handleManageUserId);
+userRouter.post(
+        '/updatepassword/:id',
+        validateUserPasswordUpdate,
+        runValidation,
+        isLoggedIn,
+        handleUpdatePassword
+        );
 //safarat ban and unban
 // userRouter.put('/ban-user/:id',isLoggedIn,isAdmin,handleBanUserId);
-// userRouter.put('/unban-user/:id([0-9a-fA-F]{24})',isLoggedIn,isAdmin,handleUnBanUserId);
+// userRouter.put('/unban-user/:id([0-9a-fA-F]{24})',isLoggedIn,isAdmin,handleUpdatePassword);
 
 module.exports = userRouter;

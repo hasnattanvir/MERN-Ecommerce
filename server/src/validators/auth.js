@@ -64,5 +64,35 @@ const validateUserLogin = [
 
 ];
 
-module.exports = {validateUserRegistration,validateUserLogin};
+const validateUserPasswordUpdate = [
+   body("oldPassword")
+   .trim()
+   .notEmpty()
+   .withMessage("Old Password is required")
+   .isLength({min:6, max:31})
+   .matches(
+       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
+   )
+   .withMessage("Password should contain at letast one uppercase letter, one lowercase letter, one number, and one special character"),
+   
+   body("newPassword")
+   .trim()
+   .notEmpty()
+   .withMessage("New Password is required")
+   .isLength({min:6, max:31})
+   .matches(
+       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
+   )
+   .withMessage("Password should contain at letast one uppercase letter, one lowercase letter, one number, and one special character"),
+  
+   body('confirmPassword').custom((value,{req})=>{
+    if(value !== req.body.newPassword){
+        throw new Error("Password Did't match");
+    }
+    return true;
+   })
+   
+];
+
+module.exports = {validateUserRegistration,validateUserLogin,validateUserPasswordUpdate};
 

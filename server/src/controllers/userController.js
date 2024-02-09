@@ -9,8 +9,10 @@ const { jwtactivationKey, clientURL } = require('../secret');
 const { createJSONWebToken } = require('../helper/jsonwebtoken');
 const EmailWithNodeMailer = require('../helper/email');
 const { log } = require('console');
+const bcrypt = require('bcryptjs');
 const {handleUserAction, findUsers, findUserById, deleteUserById, updateUserById} = require('../services/userService');
 const { default: mongoose } = require('mongoose');
+
 // Get All User
 const handlegetUsers = async(req,res,next)=>{
     // console.log("user profile");
@@ -271,6 +273,39 @@ const handleManageUserId = async(req,res,next)=>{
     }
 };
 
+const handleUpdatePassword = async(req,res,next)=>{
+    try{
+        const {oldPassword,newPassword,confirmPassword} = req.body;
+        const userId = req.params.id;
+        const user = await findWithID(User,userId);
+
+        const isPasswordMatch = await bcrypt.compare(oldPassword,user.password);
+        if(!isPasswordMatch){
+            throw createError(
+                401,
+                'old password did not match'
+            );
+        }
+        // const filter = {userId}
+        // const update = {$set: {password:newPassword}}
+        // const updateOptions = new{new:true}
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {password:newPassword},
+            {new:true}
+        ).select('-password');
+
+        return successResponse(res,{
+            statusCode:200,
+            message:'User was updated successfull',
+            payload:{updatedUser},
+        });
+
+    }catch(error){
+        next(error);
+    }
+};
+
 
 
 module.exports ={
@@ -281,6 +316,7 @@ module.exports ={
     handleactivateuserAccount,
     handleupdateUserById,
     handleManageUserId,
+    handleUpdatePassword
     // handleBanUserId,
     // handleUnBanUserId
 };
