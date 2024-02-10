@@ -5,12 +5,12 @@ const User = require('../models/userModel');
 const { successResponse } = require('./responseController');
 const {findWithID} = require('../services/findItem');
 const { deleteImage } = require('../helper/deleteImage');
-const { jwtactivationKey, clientURL } = require('../secret');
+const { jwtactivationKey, clientURL, jwtresetPassKey } = require('../secret');
 const { createJSONWebToken } = require('../helper/jsonwebtoken');
 const EmailWithNodeMailer = require('../helper/email');
 const { log } = require('console');
 const bcrypt = require('bcryptjs');
-const {handleUserAction, findUsers, findUserById, deleteUserById, updateUserById} = require('../services/userService');
+const {handleUserAction, findUsers, findUserById, deleteUserById, updateUserById, ForgotPassworByEmail, ResetPassworByEmail} = require('../services/userService');
 const { default: mongoose } = require('mongoose');
 
 // Get All User
@@ -142,7 +142,7 @@ const handleprocessRegister = async(req,res,next)=>{
         next(error);
     }
 };
-
+// active or verify user
 const handleactivateuserAccount = async(req,res,next)=>{
     try{
         const token = req.body.token;
@@ -255,7 +255,7 @@ const handleUnBanUserId = async(req,res,next)=>{
         next(error);
     }
 };
-
+// manage user
 const handleManageUserId = async(req,res,next)=>{
     try{
         let userId = req.params.id;
@@ -272,7 +272,7 @@ const handleManageUserId = async(req,res,next)=>{
         next(error);
     }
 };
-
+//update password 
 const handleUpdatePassword = async(req,res,next)=>{
     try{
         const {oldPassword,newPassword,confirmPassword} = req.body;
@@ -305,6 +305,36 @@ const handleUpdatePassword = async(req,res,next)=>{
         next(error);
     }
 };
+//forgot password
+const handleForgetPassword = async(req,res,next)=>{
+    try{
+
+        const {email} = req.body;
+        const token = await ForgotPassworByEmail(email);
+        return successResponse(res,{
+            statusCode:200,
+            message:`Please go to your email ${email}  for Reset Password`,
+            payload:token,
+        })
+
+    }catch(error){
+        next(error);
+    }
+};
+// reset password
+const handleResetPassword = async(req,res,next)=>{
+    try{
+        const {token,password} = req.body;
+        await ResetPassworByEmail(token,password);   
+        return successResponse(res,{
+            statusCode:200,
+            message:'Password Reset SuccessFully',
+        });
+
+    }catch(error){
+        next(error);
+    }
+};
 
 
 
@@ -316,7 +346,9 @@ module.exports ={
     handleactivateuserAccount,
     handleupdateUserById,
     handleManageUserId,
-    handleUpdatePassword
+    handleUpdatePassword,
+    handleForgetPassword,
+    handleResetPassword
     // handleBanUserId,
     // handleUnBanUserId
 };

@@ -33,10 +33,22 @@ const handleLogin = async(req,res,next)=>{
             // {_id:user._id},
             {user},
             jwtaccessKey,
-            '15m'
+            '1m'
             );
             res.cookie('accessToken', accessToken, {
-                maxAge: 15 * 60 * 1000, // 15 minutes
+                maxAge: 1 * 60 * 1000, // 1 DAY
+                httpOnly: true,
+                sameSite: 'none'
+            });
+        // refreshToken
+        const refreshToken = createJSONWebToken(
+            // {_id:user._id},
+            {user},
+            jwtaccessKey,
+            '7d'
+            );
+            res.cookie('refreshToken', refreshToken, {
+                maxAge:7 * 24 * 60 * 60 * 1000, // 7 DAY
                 httpOnly: true,
                 sameSite: 'none'
             });

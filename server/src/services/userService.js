@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const createError = require('http-errors');
 const User = require("../models/userModel");
 const { deleteImage } = require('../helper/deleteImage');
+const { createJSONWebToken } = require('../helper/jsonwebtoken');
+const { jwtresetPassKey, clientURL } = require('../secret');
+const jwt = require('jsonwebtoken');
+const EmailWithNodeMailer = require('../helper/email');
 
 const findUsers = async (search,limit,page)=>{
     try{
@@ -55,6 +59,7 @@ const deleteUserById = async(id, options={})=>{
     throw(error);
  }
 }
+
 const updateUserById = async(userId,req)=>{
  try{
     const options ={password:0};
@@ -104,6 +109,67 @@ const updateUserById = async(userId,req)=>{
  }
 };
 
+const ForgotPassworByEmail = async(email)=>{
+    try {
+        const userData = await User.findOne({email:email});
+        if(!userData){
+            throw createError(404,'Email is incorrert or you have not verified your email address.please register yourself first')
+        }
+
+        // create jwt
+        const token = createJSONWebToken(
+            {email},
+            jwtresetPassKey,
+            '10m'
+            );
+        
+        //prepare email
+        const emailData = {
+            email,
+            subject:'Reset Password Email',
+            html:`
+            <h2>Hello ${userData.name} ! </h2>
+            <p>Please click here to link <a href="${clientURL}/api/users/reset-password/${token}" target="_blank">Reset Your Password</a></p>
+            `
+        }
+        //send email
+       try{
+        await EmailWithNodeMailer(emailData);
+        return token;
+       }catch(emailError){
+        next(createError(500,'Failed to send Reset Password Email'));
+        return;
+       }
+        return successMessage;
+    }catch (error) {
+        throw(error);
+    }
+}
+
+const ResetPassworByEmail = async(token,password)=>{
+    try {
+        const decoded = jwt.verify(token,jwtresetPassKey);
+        if(!decoded){
+            throw createError(400,"Invalid or Expired Token");
+        }
+        const filter = {email:decoded.email};
+        const update = {password:password};
+        const options ={new:true};
+        const updateUser = await User.findOneAndUpdate(
+            filter,
+            update,
+            options
+        ).select('-password');
+
+        if(!updateUser){
+            throw createError(400,'User was not updated failed');
+        }
+
+    }catch (error) {
+        throw(error);
+    }
+}
+
 const handleUserAction = async(action,userId)=>{
     try {
         //console.log('Action received:', action); // Add this line for debugging
@@ -136,4 +202,4 @@ const handleUserAction = async(action,userId)=>{
     }
 }
 
-module.exports = {handleUserAction,findUsers,findUserById,deleteUserById,updateUserById};
+module.exports = {handleUserAction,findUsers,findUserById,deleteUserById,updateUserById,ForgotPassworByEmail,ResetPassworByEmail};

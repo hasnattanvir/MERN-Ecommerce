@@ -94,5 +94,39 @@ const validateUserPasswordUpdate = [
    
 ];
 
-module.exports = {validateUserRegistration,validateUserLogin,validateUserPasswordUpdate};
+
+const validateUserForgetPassword = [
+    body("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email address"),
+];
+
+
+const validateUserResetPassword = [
+    body("token")
+    .trim()
+    .notEmpty()
+    .withMessage("Token is Missing"),
+
+    body("password")
+    .trim()
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({min:6, max:31})
+    .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
+    )
+    .withMessage("Password should contain at letast one uppercase letter, one lowercase letter, one number, and one special character"),
+];
+
+module.exports = {
+    validateUserRegistration,
+    validateUserLogin,
+    validateUserPasswordUpdate,
+    validateUserForgetPassword,
+    validateUserResetPassword
+};
 
