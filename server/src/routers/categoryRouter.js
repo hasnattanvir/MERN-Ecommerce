@@ -9,7 +9,8 @@ const {
     handleCreateCategory,
     handleGetCategories,
     handleGetCategory,
-    handleUpdateCategory
+    handleUpdateCategory,
+    handleDeleteCategory
 } = require('../controllers/categoryController');
 const { validateCategory } = require("../validators/category");
 
@@ -45,6 +46,14 @@ categoryRouter.put(
         isLoggedIn,
         isAdmin,
         handleUpdateCategory
+        );
+
+//Delte api/categories/:slug
+categoryRouter.delete(
+        '/:slug',
+        isLoggedIn,
+        isAdmin,
+        handleDeleteCategory
         );
 
 module.exports = categoryRouter;

@@ -81,7 +81,19 @@
 
 ## Category  Model and Input Validation
 ## Category  CRUD - Create Category
+## get: api/categories
+## get: api/categories/:slug
 ## make a slug using a packeg-> slugify
 ## Category  CRUD - Read Category
 ## Category  CRUD - Update Category
+## PUT: api/categories/:slug
 ## Category  CRUD - Delete Category
+## Delete: api/categories/:slug
+
+
+## Product API - Product Model
+## Product API - create seed route for testing products
+## Product API - Create Model
+## Product API - Read Model
+## Product API - Update Model
+## Product API - Delete Model

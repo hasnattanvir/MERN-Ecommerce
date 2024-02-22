@@ -32,12 +32,18 @@ const updateCategory = async(name,slug)=>{
         );
     
     return updateCategory;
+};
 
+// Delete Category
+const deleteCategory = async(slug)=>{
+    const result = await Category.findOneAndDelete({slug});
+    return result;
 };
 
 module.exports ={
     createCategory,
     getCategories,
     getCategory,
-    updateCategory
+    updateCategory,
+    deleteCategory
 };
