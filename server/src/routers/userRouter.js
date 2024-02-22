@@ -19,8 +19,6 @@ const {
         handleResetPassword,
 } = require('../controllers/userController');
 
-
-
 userRouter.post(
         '/process-register',
         isLoggedOUt,
@@ -31,8 +29,8 @@ userRouter.post(
         );
 userRouter.post('/activate',isLoggedOUt,handleactivateuserAccount);
 userRouter.get('/',isLoggedIn,isAdmin,handlegetUsers);
-userRouter.get('/:id',isLoggedIn,handlegetUserById);
-userRouter.delete('/:id',isLoggedIn,handledeleteUserById);
+userRouter.get('/:id([0-9a-fA-F{25}])',isLoggedIn,handlegetUserById);
+userRouter.delete('/:id([0-9a-fA-F{25}])',isLoggedIn,handledeleteUserById);
 userRouter.put(
         '/reset-password/',
         validateUserResetPassword,
@@ -40,14 +38,14 @@ userRouter.put(
         handleResetPassword
         );
 userRouter.put(
-        '/:id',
+        '/:id([0-9a-fA-F{25}])',
         isLoggedIn,
         upload.single("image"),
         handleupdateUserById
         );
-userRouter.put('/manage-user/:id',isLoggedIn,isAdmin,handleManageUserId);
+userRouter.put('/manage-user/:id([0-9a-fA-F{25}])',isLoggedIn,isAdmin,handleManageUserId);
 userRouter.post(
-        '/updatepassword/:id',
+        '/updatepassword/:id([0-9a-fA-F{25}])',
         validateUserPasswordUpdate,
         runValidation,
         isLoggedIn,
@@ -60,8 +58,6 @@ userRouter.post(
         runValidation,
         handleForgetPassword
         );
-
-
 
 //safarat ban and unban
 // userRouter.put('/ban-user/:id',isLoggedIn,isAdmin,handleBanUserId);

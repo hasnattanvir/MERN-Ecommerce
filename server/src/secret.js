@@ -8,6 +8,7 @@ const defaultImagePath = process.env.DEFAULT_USER_IMAGE_PATH || 'public/images/u
 const jwtactivationKey = process.env.JWT_ACTIVATION_KEY || 'slkjfeonvls34(*@#&$';
 const jwtaccessKey = process.env.JWT_ACCESS_KEY || 'SLFKLJK987(*@#&$';
 const jwtresetPassKey = process.env.JWT_Reset_Password_KEY || 'slklsdkfj@##$)@AU(*@#&$';
+const jwtrefressKey = process.env.JWT_Refreshd_KEY || '@##$)@AU(*@#&$';
 const smtpUsername = process.env.SMTP_USERNAME || '';
 const smtpPassword = process.env.SMTP_PASSWORD || '';
 
@@ -23,5 +24,6 @@ module.exports ={
     smtpUsername,
     smtpPassword,
     clientURL,
+    jwtrefressKey,
     // uploadDir
 }

@@ -71,3 +71,17 @@
 ## PUT /api/users/update-password ->update the password
 ## POST /api/users/forget-password ->forget the password
 ## PUT /api/users/reset-password -> reset the password
+
+## POST/api/auth/refresh-token ->generate refresh the token
+## GET/api/auth/protected -> verify the token and give access to other routes
+## refactoring
+## modular code structure
+## winston logger library
+## logshow -> winston/alternatave loger 
+
+## Category  Model and Input Validation
+## Category  CRUD - Create Category
+## make a slug using a packeg-> slugify
+## Category  CRUD - Read Category
+## Category  CRUD - Update Category
+## Category  CRUD - Delete Category

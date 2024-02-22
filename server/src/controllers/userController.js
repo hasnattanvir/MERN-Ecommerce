@@ -12,6 +12,8 @@ const { log } = require('console');
 const bcrypt = require('bcryptjs');
 const {handleUserAction, findUsers, findUserById, deleteUserById, updateUserById, ForgotPassworByEmail, ResetPassworByEmail} = require('../services/userService');
 const { default: mongoose } = require('mongoose');
+const checkUserExists = require('../helper/chekUserExits');
+const sendEmail = require('../helper/sendEmail');
 
 // Get All User
 const handlegetUsers = async(req,res,next)=>{
@@ -94,7 +96,9 @@ const handleprocessRegister = async(req,res,next)=>{
             throw createError(400,'File too large.It must be less then 2 MB');
         } 
 
-        const userExists = await User.exists({email:email});
+        // const userExists = await User.exists({email:email});
+        const userExists = await checkUserExists(email);
+
         if(userExists){
             throw createError(409,'User already exits. please login');
         }
@@ -126,13 +130,7 @@ const handleprocessRegister = async(req,res,next)=>{
             `
         }
         //send email
-       try{
-        await EmailWithNodeMailer(emailData);
-       }catch(emailError){
-        next(createError(500,'Failed to send verification email'));
-        return;
-       }
-
+      sendEmail(emailData);
         return successResponse(res,{
             statusCode:200,
             message:`Please go to your email ${email}  for completing your registerton process`,
@@ -311,6 +309,7 @@ const handleForgetPassword = async(req,res,next)=>{
 
         const {email} = req.body;
         const token = await ForgotPassworByEmail(email);
+
         return successResponse(res,{
             statusCode:200,
             message:`Please go to your email ${email}  for Reset Password`,
@@ -335,8 +334,6 @@ const handleResetPassword = async(req,res,next)=>{
         next(error);
     }
 };
-
-
 
 module.exports ={
     handlegetUsers,

@@ -122,11 +122,20 @@ const validateUserResetPassword = [
     .withMessage("Password should contain at letast one uppercase letter, one lowercase letter, one number, and one special character"),
 ];
 
+// const validateRefreshToken = [
+//     body("token")
+//     .trim()
+//     .notEmpty()
+//     .withMessage("Token is Missing"),
+// ];
+
+
 module.exports = {
     validateUserRegistration,
     validateUserLogin,
     validateUserPasswordUpdate,
     validateUserForgetPassword,
-    validateUserResetPassword
+    validateUserResetPassword,
+    // validateRefreshToken
 };
 
