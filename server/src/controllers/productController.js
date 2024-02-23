@@ -91,32 +91,16 @@ const handleUpdateProduct = async(req,res,next)=>{
                 updates[key] = req.body[key];
             }
         }
-
-        if(updates.name){
-            updates.slug = slugify(updates.name);
-        }
-
         const image = req.file;
-        if(image){
-            if(image.size>1024*1024*2){
-                throw new Error ('File too large. It must be less than 2 MB');
-            }
-            updates.image = image.buffer.toString('base64');
-        }
 
-        const updateProduct = await Product.findOneAndUpdate(
-            {slug},
-            updates,
-            updateOption
-        );
-        if(!updateProduct){
-            throw createError(404,'User with this ID does not exist');
-        }
+        const updatedProduct =  await updateProduct(slug,updates,image,updateOption)
+
+       
 
         return successResponse(res,{
             statusCode:200,
             message:'Producte Update success',
-            payload:{updateProduct}
+            payload:{updatedProduct}
         })
     }catch(error){
         next(error);

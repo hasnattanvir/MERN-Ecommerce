@@ -62,15 +62,24 @@ const getProduct = async(slug)=>{
 };
 
 // update Product
-const updateProduct = async(name,slug)=>{
-     const filter = {slug};
-     const updates =  {$set:{name:name,slug:slugify(name)}};
-     const option = {new:true};
-     const updateProduct = await Product.findOneAndUpdate(
-        filter,
+const updateProduct = async(slug,updates,image,updateOption)=>{
+    if(updates.name){
+        updates.slug = slugify(updates.name);
+    }
+    if(image){
+        if(image.size>1024*1024*2){
+            throw new Error ('File too large. It must be less than 2 MB');
+        }
+        updates.image = image.buffer.toString('base64');
+    }
+    const updateProduct = await Product.findOneAndUpdate(
+        {slug},
         updates,
-        option,
-        );
+        updateOption
+    );
+    if(!updateProduct){
+        throw createError(404,'User with this ID does not exist');
+    }
     
     return updateProduct;
 };
