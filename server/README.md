@@ -93,7 +93,9 @@
 
 ## Product API - Product Model
 ## Product API - create seed route for testing products
-## Product API - Create Model
-## Product API - Read Model
+## Product API - Create POST/api/products
+## Product API - Read Model GET /api/products
+## Product API - Read Model GET /api/products
+## Product API - Read Model GET /api/product/:slug
 ## Product API - Update Model
 ## Product API - Delete Model

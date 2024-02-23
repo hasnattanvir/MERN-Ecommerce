@@ -8,25 +8,115 @@ const { createProduct, getProducts, getProduct,updateProduct,deleteProduct } = r
 // Register Product
 const handleCreateProduct = async(req,res,next)=>{
     try{
-        const {name,description,price,quantity,shipping,category} = req.body;
-        const image = req.file;
-        if(!image){
-            throw createError(400,'Image file is required');
-        }
-        if(image.size > 1024 * 1024 *2){
-            throw createError(400,'File too large.It must be less then 2 MB');
-        } 
-
-        const productData = {
-            name,description,price,category,quantity,shipping,image
-        }
-        const product = await createProduct(productData);
-        
+        const image = req.file?.path;
+        console.log(image);
+        const product = await createProduct(req.body,image);
 
         return successResponse(res,{
             statusCode:201,
             message:'Product was created successfully',
             payload: {product}
+        })
+    }catch(error){
+        next(error);
+    }
+};
+
+// Find Product
+const handleGetProducts = async(req,res,next)=>{
+    try{
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 4;
+        const productData = await getProducts(page,limit);
+
+        return successResponse(res,{
+            statusCode:200,
+            message:'Product was fatched successfully',
+            payload:{
+                products:productData.products,
+                pagination:{
+                    totalPage:Math.ceil(productData.count/limit),
+                    currentPage:page,
+                    previousPage:page-1,
+                    nextPage:page+1,
+                    totalNumberOfProducts:productData.count,
+                }
+            }
+        })
+    }catch(error){
+        next(error);
+    }
+};
+
+// Find Product Slug
+const handleGetProduct = async(req,res,next)=>{
+    try{
+        const {slug} = req.params;
+        const product = await getProduct(slug);
+        // console.log(product);
+        return successResponse(res,{
+            statusCode:200,
+            message:'Return Single Producte',
+            payload:{product}
+        })
+    }catch(error){
+        next(error);
+    }
+};
+
+// Delete Product By Slug
+const handleDeleteProduct = async(req,res,next)=>{
+    try{
+        const {slug} = req.params;
+        await deleteProduct(slug);
+        return successResponse(res,{
+            statusCode:200,
+            message:'Producte Delete success',
+        })
+    }catch(error){
+        next(error);
+    }
+};
+
+// Update Product By Slug
+const handleUpdateProduct = async(req,res,next)=>{
+    try{
+        const {slug} = req.params;
+        const updateOption = {new:true, runValidators:true, context:'query'};
+        let updates = {};
+        const allowedFields = ['name','description','price','sold','quantity','shipping'];
+
+        for(const key in req.body){
+            if(allowedFields.includes(key)){
+                updates[key] = req.body[key];
+            }
+        }
+
+        if(updates.name){
+            updates.slug = slugify(updates.name);
+        }
+
+        const image = req.file;
+        if(image){
+            if(image.size>1024*1024*2){
+                throw new Error ('File too large. It must be less than 2 MB');
+            }
+            updates.image = image.buffer.toString('base64');
+        }
+
+        const updateProduct = await Product.findOneAndUpdate(
+            {slug},
+            updates,
+            updateOption
+        );
+        if(!updateProduct){
+            throw createError(404,'User with this ID does not exist');
+        }
+
+        return successResponse(res,{
+            statusCode:200,
+            message:'Producte Update success',
+            payload:{updateProduct}
         })
     }catch(error){
         next(error);
@@ -39,4 +129,8 @@ const handleCreateProduct = async(req,res,next)=>{
 
 module.exports ={
     handleCreateProduct,
+    handleGetProducts,
+    handleGetProduct,
+    handleDeleteProduct,
+    handleUpdateProduct
 };

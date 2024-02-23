@@ -1,38 +1,64 @@
 const slugify = require('slugify')
 const Product = require('../models/productModel');
 const createError = require('http-errors');
+const { deleteImage } = require('../helper/deleteImage');
 
 // Register Product
-const createProduct = async(productData)=>{
-    const {name,description,price,quantity,shipping,category,image} = productData;
-    const productExists = await Product.exists({name:name});
-
+const createProduct = async(productData,image)=>{
+    // console.log(productData);
+    // console.log(image);
+    if(!image){
+        throw createError(400,'Image file is required');
+    }
+    if(image.size > 1024 * 1024 *2){
+        throw createError(400,'File too large.It must be less then 2 MB');
+    } 
+    if(image){
+        productData.image = image;
+        // console.log(image);
+    }
+    const productExists = await Product.exists({name:productData.name});
     if(productExists){
         throw createError(409,'Product with this name already exits')
     }
     //product create
     const product = await Product.create({
-        name:name,
-        slug:slugify(name),
-        description:description,
-        price:price,
-        quantity:quantity,
-        shipping:shipping,
-        image:image.filename,
-        category:category
+        name:productData.name,
+        slug:slugify(productData.name),
+        description:productData.description,
+        price:productData.price,
+        quantity:productData.quantity,
+        shipping:productData.shipping,
+        category:productData.category,
+        image:productData.image
     })
 
     return product;
 };
 
-// Get Categories
-const getProducts = async()=>{
-    return await Product.find({}).select('name slug').lean();
+
+// Get Products
+const getProducts = async(page=1,limit=4)=>{
+    const products = await Product.find({})
+        .populate('category')
+        .skip((page-1)*limit)
+        .limit(limit)
+        .sort({createdAt:-1});
+        if(!products){
+            throw createError(404,'no products found');
+        }
+    const count = await Product.find({}).countDocuments();
+    return {products,count};
 };
+
 
 // Get Product
 const getProduct = async(slug)=>{
-    return await Product.find({slug}).select('name slug').lean();
+    const product = await Product.findOne({slug}).populate('category');
+    if(!product){
+        throw createError(404,'No Products Found');
+    }
+    return product;
 };
 
 // update Product
@@ -51,8 +77,14 @@ const updateProduct = async(name,slug)=>{
 
 // Delete Product
 const deleteProduct = async(slug)=>{
-    const result = await Product.findOneAndDelete({slug});
-    return result;
+    const product = await Product.findOneAndDelete({slug});
+    if(!product){
+        throw createError(404,'No Products Found');
+    }
+    if(product.image){
+        await deleteImage(product.image);
+    }
+    return product;
 };
 
 module.exports ={
