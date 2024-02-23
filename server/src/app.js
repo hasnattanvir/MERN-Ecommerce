@@ -35,6 +35,7 @@ const userRouter = require('./routers/userRouter');
 const seedRouter = require('./routers/seedRouter');
 const authRouter = require("./routers/authRouter");
 const categoryRouter = require("./routers/categoryRouter");
+const productRouter = require("./routers/productRouter");
 const { errorResponse } = require("./controllers/responseController");
 
 // Router Add
@@ -42,6 +43,7 @@ app.use("/api/users",userRouter);
 app.use("/api/seed",seedRouter);
 app.use("/api/auth",authRouter);
 app.use("/api/categories",categoryRouter);
+app.use("/api/products",productRouter);
 
 
 app.get('/test',rateLimiter,(req,res)=>{

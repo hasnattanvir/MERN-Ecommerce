@@ -1,7 +1,7 @@
 const express = require("express");
 const userRouter = express.Router();
 const {isLoggedIn, isLoggedOUt,isAdmin} = require("../middlewares/auth");
-const upload = require("../middlewares/uploadefile");
+const {upload} = require("../middlewares/uploadefile");
 const {validateUserRegistration, validateUserPasswordUpdate, validateUserForgetPassword, validateUserResetPassword} = require("../validators/auth");
 const runValidation = require("../validators");
 const {

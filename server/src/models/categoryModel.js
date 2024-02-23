@@ -3,7 +3,7 @@ const { Schema, model } = require("mongoose");
 const categorySchema = new Schema({
   name: {
     type: String,
-    required: [true, 'Category name is missing'],
+    required: [true,'Category name is missing'],
     trim: true,
     unique:true,
     minlength: [3, 'The length of category name can be minimum 3 characters'],
@@ -11,7 +11,7 @@ const categorySchema = new Schema({
   },
   slug: {
     type: String,
-    required: [true, 'Category name is missing'],
+    required: [true,'Category name is missing'],
     trim: true,
     lowercase:true,
     unique:true,

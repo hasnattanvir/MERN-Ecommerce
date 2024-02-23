@@ -4,13 +4,24 @@ const createError = require('http-errors');
 const { 
   ALLOWED_FILE_TYPES, 
   MAX_FILE_SIZE ,
-  UPLOAD_USER_IMG_DIR, 
+  UPLOAD_USER_IMG_DIR,
+  UPLOAD_PRODUCT_IMG_DIR, 
 } = require('../config');
 
 // when image use string format
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, UPLOAD_USER_IMG_DIR)
+    },
+    filename: function (req, file, cb) {
+      cb( null,Date.now() + '_' + file.originalname);
+    }
+})
+
+// when image use string format
+const productStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, UPLOAD_PRODUCT_IMG_DIR)
     },
     filename: function (req, file, cb) {
       cb( null,Date.now() + '_' + file.originalname);
@@ -31,4 +42,10 @@ const upload = multer({
   fileFilter:fileFilter,
 });
 
-module.exports = upload;
+const uploadProductImage = multer({ 
+  storage: productStorage, 
+  limits:{fileSize: MAX_FILE_SIZE},
+  fileFilter:fileFilter,
+});
+
+module.exports = {upload,uploadProductImage};

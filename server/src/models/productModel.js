@@ -1,5 +1,7 @@
 const { Schema, model } = require("mongoose");
-//name,slug,description,price,quantity,sold,shipping,image
+const bcrypt = require('bcryptjs');
+const { defaultImagePath } = require("../secret");
+
 const productSchema = new Schema({
   name: {
     type: String,
@@ -70,8 +72,6 @@ const productSchema = new Schema({
   image: {
     type: String,
     default:defaultImagePath
-    // contentType:String,
-    // required:[true,"Product image is required"],
   },
   category:{
     type:Schema.Types.ObjectId,
@@ -79,10 +79,9 @@ const productSchema = new Schema({
     required:true
   }
 
- 
 },
 {timestamps:true}
 );
 
 const Product = model('Product', productSchema);
-module.exports =  Product;
+module.exports = Product;

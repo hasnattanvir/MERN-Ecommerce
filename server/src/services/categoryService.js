@@ -32,6 +32,7 @@ const updateCategory = async(name,slug)=>{
         );
     
     return updateCategory;
+
 };
 
 // Delete Category
