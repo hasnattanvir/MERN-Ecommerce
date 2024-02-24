@@ -99,3 +99,6 @@
 ## Product API - Read Model GET /api/product/:slug
 ## Product API - Update Model
 ## Product API - Delete Model
+
+## Product API - Search Products
+## Product API - Filter Products
