@@ -62,26 +62,51 @@ const getProduct = async(slug)=>{
 };
 
 // update Product
-const updateProduct = async(slug,updates,image,updateOption)=>{
-    if(updates.name){
-        updates.slug = slugify(updates.name);
-    }
-    if(image){
-        if(image.size>1024*1024*2){
-            throw new Error ('File too large. It must be less than 2 MB');
-        }
-        updates.image = image.buffer.toString('base64');
-    }
-    const updateProduct = await Product.findOneAndUpdate(
-        {slug},
-        updates,
-        updateOption
-    );
-    if(!updateProduct){
-        throw createError(404,'User with this ID does not exist');
-    }
+const updateProduct = async(slug,req)=>{
     
-    return updateProduct;
+    try {
+        const product = await Product.findOne({slug:slug});
+        // console.log(product);
+        if(!product){
+            throw createError(404,'Product Not Found');
+        }
+        const updateOptions = {new:true, runValidators:true, context:'query'};
+        
+        let updates = {};
+        const allowedFields = ['name','description','price','sold','quantity','shipping'];
+        
+        for(const key in req.body){
+            if(allowedFields.includes(key)){
+                if(key === 'name'){
+                    updates.slug=slugify(req.body[key]);
+                }
+                updates[key] = req.body[key];
+            }
+        }
+        // console.log(updates);
+        const image = req.file?.path;
+        // console.log(image);
+        if(image){
+            if(image.size>1024 * 1024 *2){
+                throw new Error(400,'File too large.It must be less then 2 MB');
+            }
+            // updates.image = image.buffer.toString('base64');
+            updates.image = image;
+            product.image !== 'default.png' && deleteImage (product.image);
+        }
+        const updatedProduct = await Product.findOneAndUpdate(
+            { slug },
+            updates,
+            updateOptions
+        );
+        if(!updatedProduct){
+            throw createError(404,'Updateing Product was not possible');
+        }
+        return updatedProduct;
+       
+    } catch (error) {
+        throw error;
+    }
 };
 
 // Delete Product

@@ -3,6 +3,7 @@ const slugify = require('slugify')
 const createError = require('http-errors');
 const { successResponse } = require('./responseController');
 const { createProduct, getProducts, getProduct,updateProduct,deleteProduct } = require('../services/productService');
+const { deleteImage } = require('../helper/deleteImage');
 // console.log("test");
 
 // Register Product
@@ -82,25 +83,12 @@ const handleDeleteProduct = async(req,res,next)=>{
 const handleUpdateProduct = async(req,res,next)=>{
     try{
         const {slug} = req.params;
-        const updateOption = {new:true, runValidators:true, context:'query'};
-        let updates = {};
-        const allowedFields = ['name','description','price','sold','quantity','shipping'];
-
-        for(const key in req.body){
-            if(allowedFields.includes(key)){
-                updates[key] = req.body[key];
-            }
-        }
-        const image = req.file;
-
-        const updatedProduct =  await updateProduct(slug,updates,image,updateOption)
-
-       
-
+        const updatedProducts = await updateProduct(slug,req);
+        console.log(updatedProducts);
         return successResponse(res,{
             statusCode:200,
             message:'Producte Update success',
-            payload:{updatedProduct}
+            payload:updatedProducts
         })
     }catch(error){
         next(error);
