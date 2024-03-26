@@ -1,5 +1,5 @@
 require("dotenv").config();
-const serverPost = process.env.SERVER_PORT || 3002;
+const serverPort = process.env.SERVER_PORT || 3002;
 const MongoDBAtlas = process.env.DB_URL || 'mongodb://localhost:27017/ecommerch';
 
 const defaultImagePath = process.env.DEFAULT_USER_IMAGE_PATH || 'public/images/users/short_logo.png';
@@ -12,10 +12,10 @@ const jwtrefressKey = process.env.JWT_Refreshd_KEY || '@##$)@AU(*@#&$';
 const smtpUsername = process.env.SMTP_USERNAME || '';
 const smtpPassword = process.env.SMTP_PASSWORD || '';
 
-const clientURL = process.env.CLIENT_URL || '';
+// const clientURL = process.env.CLIENT_URL || '';
 // const uploadDir = process.env.UPLOAD_FILE || '';
 module.exports ={
-    serverPost, 
+    serverPort, 
     MongoDBAtlas, 
     defaultImagePath, 
     jwtactivationKey,

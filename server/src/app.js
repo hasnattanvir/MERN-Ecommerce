@@ -1,3 +1,4 @@
+var cors = require('cors')
 const express = require("express");
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
@@ -15,7 +16,7 @@ const rateLimiter = rateLimit({
     message:'Too many requests from this IP. please try again later'
 })
 
-
+app.use(cors());
 // ratelimiter
 app.use(rateLimiter);
 //middleware
